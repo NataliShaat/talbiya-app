@@ -22,22 +22,20 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="h-screen w-full bg-[#17320b] flex items-center justify-center overflow-hidden">
+    <div className="min-h-screen w-full bg-[#17320b] md:flex md:items-center md:justify-center md:p-4 overflow-hidden">
       <div
-        className="relative w-[390px] h-[844px] bg-[#fffff6] rounded-[48px] overflow-hidden shadow-2xl border border-[rgba(255,255,246,0.35)]"
+        className="relative w-full min-h-screen bg-[#fffff6] overflow-hidden md:w-[390px] md:h-[844px] md:min-h-0 md:rounded-[48px] md:border md:border-[rgba(255,255,246,0.35)] md:shadow-2xl"
         style={{
           boxShadow:
             "0 30px 80px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
         }}
       >
-        {/* Top phone area now same green as header */}
-        <div className="absolute top-0 left-0 right-0 h-[44px] bg-[#17320b] z-40" />
+        {/* Fake phone chrome only on desktop */}
+        <div className="hidden md:block absolute top-0 left-0 right-0 h-[44px] bg-[#17320b] z-40" />
 
-        {/* Notch */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[34px] bg-black rounded-b-2xl z-50" />
+        <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[34px] bg-black rounded-b-2xl z-50" />
 
-        {/* Status bar */}
-        <div className="absolute top-0 left-0 right-0 h-[44px] z-50 flex items-start pt-2 px-6 justify-between">
+        <div className="hidden md:flex absolute top-0 left-0 right-0 h-[44px] z-50 items-start pt-2 px-6 justify-between">
           <span className="text-[11px] font-semibold text-[#fffff6] mt-1">9:41</span>
 
           <div className="flex items-center gap-1 mt-1">
@@ -74,16 +72,16 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Content */}
         <div className="absolute inset-0 bg-[#17320b]">
           <div
             style={{
               position: "absolute",
               inset: 0,
-              paddingTop: "44px",
+              paddingTop: 0,
               opacity: mainVisible ? 1 : 0,
               transition: "opacity 0.6s ease",
             }}
+            className="md:pt-[44px]"
           >
             <MainScreen />
           </div>
