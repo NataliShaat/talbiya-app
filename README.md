@@ -38,7 +38,7 @@
 - FastAPI (Python)
 
 ### الذكاء الاصطناعي
-- نموذج **Nuha LLM (نماذج علم)**
+- نموذج **Nuha LLM**
 - فهم اللهجات العربية
 - تحليل نبرة المستخدم (Emotion-aware responses)
 
