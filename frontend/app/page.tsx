@@ -22,15 +22,15 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-[#17320b] md:flex md:items-center md:justify-center md:p-4 overflow-hidden">
+    <div className="min-h-screen w-full bg-[#17320b] md:flex md:items-center md:justify-center md:overflow-hidden">
       <div
-        className="relative w-full min-h-screen bg-[#fffff6] overflow-hidden md:w-[390px] md:h-[844px] md:min-h-0 md:rounded-[48px] md:border md:border-[rgba(255,255,246,0.35)] md:shadow-2xl"
+        className="relative w-full min-h-screen bg-[#fffff6] overflow-hidden md:w-[390px] md:h-[844px] md:min-h-0 md:rounded-[48px] md:shadow-2xl md:border md:border-[rgba(255,255,246,0.35)]"
         style={{
           boxShadow:
             "0 30px 80px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
         }}
       >
-        {/* Fake phone chrome only on desktop */}
+        {/* Desktop-only fake iPhone chrome */}
         <div className="hidden md:block absolute top-0 left-0 right-0 h-[44px] bg-[#17320b] z-40" />
 
         <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[34px] bg-black rounded-b-2xl z-50" />
@@ -77,11 +77,10 @@ export default function Home() {
             style={{
               position: "absolute",
               inset: 0,
-              paddingTop: 0,
               opacity: mainVisible ? 1 : 0,
               transition: "opacity 0.6s ease",
             }}
-            className="md:pt-[44px]"
+            className="pt-0 md:pt-[44px]"
           >
             <MainScreen />
           </div>
