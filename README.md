@@ -72,10 +72,10 @@ cd frontend
 npm install
 npm run dev
 ```
-###.env variables
-ELM_BASE_URL=
-ELM_API_KEY=
-ELM_MODEL=nuha-2.0
+### .env variables
+- ELM_BASE_URL=
+- ELM_API_KEY=
+- ELM_MODEL=nuha-2.0
 ### الميزات الرئيسية
 دعم اللهجات العربية المختلفة
 استجابات ذكية تراعي حالة المستخدم
