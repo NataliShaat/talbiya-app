@@ -64,7 +64,7 @@ export default function MapDisplay({ currentMap }: MapDisplayProps) {
         height: "38vh",
         minHeight: "220px",
         maxHeight: "360px",
-       marginTop: "-1px",
+        marginTop: "-1px",
      }}
     >
       <img
