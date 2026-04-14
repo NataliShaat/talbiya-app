@@ -61,9 +61,11 @@ export default function MapDisplay({ currentMap }: MapDisplayProps) {
     <div
       className="relative flex-shrink-0 overflow-hidden"
       style={{
-        height: "40%",
-        marginTop: "-1px",
-      }}
+        height: "38vh",
+        minHeight: "220px",
+        maxHeight: "360px",
+       marginTop: "-1px",
+     }}
     >
       <img
         key={displayedMap}
