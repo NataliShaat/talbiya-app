@@ -50,16 +50,16 @@ export default function ChatArea({
     if (e.key === "Enter") handleSend();
   };
 
-  const handleMicClick = () => {
-    setIsRecording((prev) => !prev);
+ const handleMicClick = () => {
+  setIsRecording((prev) => !prev);
 
-    if (!isRecording) {
-      setTimeout(() => {
-        setIsRecording(false);
-        onSend("أين أقرب باب؟");
-      }, 1800);
-    }
-  };
+  if (!isRecording) {
+    setTimeout(() => {
+      setIsRecording(false);
+      // for future integration of the ASR and TTS
+    }, 1800);
+  }
+};
 
   return (
     <div
