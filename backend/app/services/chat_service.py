@@ -20,11 +20,35 @@ def build_user_prompt(user_message: str) -> str:
 - إذا طابقها، أجب بشكل محدد ومباشر.
 - إذا لم يطابقها، أجب بحرية وكأن لديك بيانات آنية عن الحرم.
 - لا تستخدم placeholders أبدًا.
+- لا تكتب أي شرح داخلي.
 - reply يجب أن يكون طبيعيًا جدًا وجاهزًا للعرض للمستخدم.
-- أخرج JSON فقط فيه:
-  map_type
-  reply
+- أخرج JSON فقط بهذا الشكل:
+{{
+  "map_type": "",
+  "reply": ""
+}}
 """.strip()
+
+
+def extract_json_object(text: str):
+    text = text.strip()
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    start = text.find("{")
+    end = text.rfind("}")
+
+    if start != -1 and end != -1 and end > start:
+        candidate = text[start:end + 1]
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            return None
+
+    return None
 
 
 def ask_nuha(user_message: str):
@@ -41,24 +65,23 @@ def ask_nuha(user_message: str):
     if not isinstance(raw_reply, str):
         return None
 
-    try:
-        parsed = json.loads(raw_reply)
-
-        map_type = parsed.get("map_type", DEFAULT_MAP_TYPE)
-        reply = parsed.get("reply", "").strip()
-
-        if map_type not in MAP_IMAGE_MAP:
-            map_type = DEFAULT_MAP_TYPE
-
-        if not reply:
-            reply = DEFAULT_FALLBACK_REPLY
-
-        return {
-            "map_type": map_type,
-            "reply": reply,
-        }
-    except Exception:
+    parsed = extract_json_object(raw_reply)
+    if not parsed:
         return None
+
+    map_type = parsed.get("map_type", DEFAULT_MAP_TYPE)
+    reply = str(parsed.get("reply", "")).strip()
+
+    if map_type not in MAP_IMAGE_MAP:
+        map_type = DEFAULT_MAP_TYPE
+
+    if not reply:
+        reply = DEFAULT_FALLBACK_REPLY
+
+    return {
+        "map_type": map_type,
+        "reply": reply,
+    }
 
 
 def process_chat(user_message: str):
