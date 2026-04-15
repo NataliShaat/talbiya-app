@@ -9,10 +9,31 @@ from app.core.constants import (
     MAP_IMAGE_MAP,
 )
 
+
+def build_user_prompt(user_message: str) -> str:
+    return f"""
+رسالة المستخدم:
+{user_message}
+
+المطلوب:
+- اختر map_type المناسب.
+- اكتب reply النهائي فقط بنفس لهجة المستخدم.
+- إذا كانت لهجة المستخدم غير واضحة، استخدم عربية طبيعية محايدة قريبة من المستخدم في السعودية، وليست مصرية.
+- لا تبدأ بـ "أبشر" إلا إذا كان المستخدم يطلب مساعدة أو توجيه بشكل طبيعي.
+- إذا كان المستخدم خائفًا أو ضائعًا أو متوترًا، لا تبدأ بـ "أبشر".
+- في هذه الحالة ابدأ بطمأنة قصيرة مثل:
+  "لا تخافي، أنا معك"
+  أو
+  "ما عليك، أنا معك"
+  ثم وجّه المستخدم مباشرة.
+- لا تُظهر JSON داخل reply.
+""".strip()
+
+
 def ask_nuha(user_message: str):
     messages = [
         {"role": "system", "content": get_system_prompt()},
-        {"role": "user", "content": build_user_prompt(user_message)}  
+        {"role": "user", "content": build_user_prompt(user_message)},
     ]
 
     raw_reply = call_nuha(messages)
@@ -39,7 +60,6 @@ def ask_nuha(user_message: str):
             "map_type": map_type,
             "reply": reply,
         }
-
     except Exception:
         return None
 
