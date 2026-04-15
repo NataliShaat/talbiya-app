@@ -46,4 +46,3 @@ def get_system_prompt():
   "reply": ""
 }
 """
-
