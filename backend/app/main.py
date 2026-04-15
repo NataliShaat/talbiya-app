@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.api.routes import health, chat
 
 app = FastAPI(title="Talbiyah Backend", version="1.0")
@@ -16,6 +17,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-#for my sanity
+
 app.include_router(health.router)
 app.include_router(chat.router)
