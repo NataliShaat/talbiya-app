@@ -12,7 +12,7 @@ from app.core.constants import (
 def ask_nuha(user_message: str):
     messages = [
         {"role": "system", "content": get_system_prompt()},
-        {"role": "user", "content": user_message},
+        {"role": "user", "content": build_user_prompt(user_message)}  
     ]
 
     raw_reply = call_nuha(messages)
