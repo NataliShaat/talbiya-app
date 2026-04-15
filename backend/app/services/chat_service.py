@@ -7,7 +7,53 @@ from app.core.constants import (
     MAP_IMAGE_MAP,
     SUPPORTED_DIALECTS,
 )
+def get_calming_phrase(dialect: str, emotion: str, user_message: str = "") -> str:
+    lost_markers = ["ضعت", "ضيعت", "ضايع", "ضايعة", "تايه", "تايهة", "خايف", "خايفة"]
+    is_lost = any(marker in user_message for marker in lost_markers)
 
+    if dialect == "gulf":
+        if is_lost:
+            return "أبشر، أنا معك، "
+
+        if emotion == "stressed":
+            return "أبشر، "
+        if emotion == "confused":
+            return "هدي شوي، أنا معك، "
+        if emotion == "urgent":
+            return "أبشر، "
+        if emotion == "tired":
+            return "لا تشيل هم "
+        if emotion == "scared":
+            return "أبشر، أنا معك، "
+        return "أبشر، "
+
+    if dialect == "egyptian":
+        if is_lost:
+            return "ما تقلقش، أنا معاك، "
+        if emotion == "confused":
+            return "اهدى ، أنا معاك، "
+        if emotion == "urgent":
+            return "تمام، "
+        if emotion == "tired":
+            return " بسيطة "
+        if emotion == "scared":
+            return "ما تخافش، أنا معاك، "
+        return ""
+
+    if dialect == "levantine":
+        if is_lost:
+            return "لا تشيل هم، أنا معك، "
+        if emotion == "confused":
+            return "اهدى شوي، أنا معك، "
+        if emotion == "urgent":
+            return "أبشر، "
+        if emotion == "tired":
+            return "،بسيطة "
+        if emotion == "scared":
+            return "لا تخاف، أنا معك، "
+        return ""
+
+    return ""
 def detect_dialect(user_message: str) -> str:
     text = user_message.strip()
 
