@@ -20,6 +20,9 @@ def ask_nuha(user_message: str):
     if isinstance(raw_reply, dict) and raw_reply.get("error"):
         return None
 
+    if not isinstance(raw_reply, str):
+        return None
+
     try:
         parsed = json.loads(raw_reply)
 
@@ -36,6 +39,7 @@ def ask_nuha(user_message: str):
             "map_type": map_type,
             "reply": reply,
         }
+
     except Exception:
         return None
 
