@@ -1,5 +1,6 @@
 import json
 import re
+
 from app.services.elm_service import call_nuha
 from app.prompts.system_prompt import get_system_prompt
 from app.core.constants import (
@@ -9,25 +10,24 @@ from app.core.constants import (
     MAP_IMAGE_MAP,
 )
 
+
 def detect_dialect(user_message: str) -> str:
     text = user_message.strip()
 
     egyptian_markers = [
-        "عايز", "عاوزه", "ازاي", "فين", "دلوقتي", "ليه", "لو سمحت",
-        "محتاج", "مفيش", "كده", "إيه", "ايه"
+        "عايز", "عاوزه", "ازاي", "فين", "دلوقتي", "ليه", "مفيش", "كده", "إيه", "ايه"
     ]
     gulf_markers = [
-        "وش", "شلون", "وين", "أبغى", "ابغى", "الحين", "مرة", "تكفى",
-        "لو سمحت", "أبي", "ودي"
+        "وش", "شلون", "وين", "أبغى", "ابغى", "الحين", "مرة", "تكفى", "أبي", "ودي"
     ]
     levantine_markers = [
-        "شو", "وين", "هلق", "بدي", "لسا", "كتير", "هيك", "ليش"
+        "شو", "وين", "هلق", "بدي", "لسا", "كتير", "هيك", "ليش", "ازايك", "اروح"
     ]
     tunisian_markers = [
         "شنو", "برشة", "توا", "علاش", "وينو", "نحب"
     ]
     sudanese_markers = [
-        "عايز", "داير", "هسي", "وين", "مالو", "شنو"
+        "عايز", "داير", "هسي", "شنو", "مالو"
     ]
 
     def count_markers(markers):
@@ -42,32 +42,106 @@ def detect_dialect(user_message: str) -> str:
     }
 
     best = max(scores, key=scores.get)
-    return best if scores[best] > 0 else "natural"
+    return best if scores[best] > 0 else "neutral"
+
+
+def detect_user_state(user_message: str) -> str:
+    text = user_message.strip()
+
+    distress_patterns = [
+        r"\bضعت\b",
+        r"\bضايع\b",
+        r"\bضايعة\b",
+        r"\bخايف\b",
+        r"\bخايفة\b",
+        r"\bمتوتر\b",
+        r"\bمتوترة\b",
+        r"\bمرعوب\b",
+        r"\bمرعوبة\b",
+        r"\bما أعرف وين\b",
+        r"\bمو عارف وين\b",
+        r"\bمستعجل\b",
+        r"\bحالة طارئة\b",
+        r"\bالحق\b",
+        r"\bساعدني بسرعة\b",
+    ]
+
+    for pattern in distress_patterns:
+        if re.search(pattern, text):
+            return "distressed"
+
+    return "normal"
+
+
+def build_control_prompt(user_message: str, detected_dialect: str, user_state: str) -> str:
+    return f"""
+رسالة المستخدم الأصلية:
+{user_message}
+
+تحكم إلزامي:
+- detected_dialect = {detected_dialect}
+- user_state = {user_state}
+
+قواعد إلزامية:
+- الرد النهائي يجب أن يكون بنفس لهجة المستخدم إذا كانت لهجته واضحة.
+- إذا كانت detected_dialect = levantine فالرد لازم يكون شامي طبيعي.
+- إذا كانت detected_dialect = egyptian فالرد لازم يكون مصري طبيعي.
+- إذا كانت detected_dialect = gulf فالرد لازم يكون خليجي طبيعي.
+- إذا كانت detected_dialect = tunisian فالرد لازم يكون تونسي طبيعي.
+- إذا كانت detected_dialect = sudanese فالرد لازم يكون سوداني طبيعي.
+- إذا كانت detected_dialect = neutral فاستخدم عربية بسيطة طبيعية.
+
+- إذا كانت user_state = normal:
+  لا تستخدم أي جملة تطمين.
+  ادخل مباشرة في الجواب.
+  لا تقل: "أنا معك" ولا "لا تخاف" ولا "ما عليك".
+- إذا كانت user_state = distressed:
+  استخدم تطمينًا قصيرًا جدًا وبنفس لهجة المستخدم، ثم أعطِ توجيهًا مباشرًا فورًا.
+
+- تعامل وكأنك تعرف موقع المستخدم الحالي بدقة داخل الحرم.
+- أعطِ توجيهًا عمليًا محسوسًا، وليس وصفًا عامًا.
+- لا تجعل الرد يبدو رسميًا أو ميكانيكيًا.
+- لا تستخدم كلمة "العزيز" أو "عزيزي".
+- لا تعتمد على الخريطة وحدها؛ يجب أن يكون النص نفسه مفيدًا.
+- لا تكتب أي شرح داخلي.
+- أخرج JSON فقط بهذا الشكل:
+{{ "map_type": "", "reply": "" }}
+""".strip()
+
+
+def extract_json_object(text: str):
+    text = text.strip()
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        candidate = text[start:end + 1]
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            return None
+
+    return None
 
 
 def ask_nuha(user_message: str):
     detected_dialect = detect_dialect(user_message)
-
-    dialect_instruction = f"""
-Detected user dialect: {detected_dialect}
-
-STRICT RULES:
-- Your final reply MUST use the same dialect as the user.
-- Do not switch to another dialect.
-- Do not default to neutral Arabic if a dialect is detected.
-- If detected_dialect is "egyptian", reply in Egyptian Arabic.
-- If detected_dialect is "gulf", reply in Gulf Arabic.
-- If detected_dialect is "levantine", reply in Levantine Arabic.
-- If detected_dialect is "tunisian", reply in Tunisian Arabic.
-- If detected_dialect is "sudanese", reply in Sudanese Arabic.
-- If detected_dialect is "natural", use simple clear Arabic suitable for Saudi users.
-"""
+    user_state = detect_user_state(user_message)
 
     messages = [
-        {"role": "system", "content": get_system_prompt() + "\n\n" + dialect_instruction},
+        {"role": "system", "content": get_system_prompt()},
         {
             "role": "user",
-            "content": f"User original message:\n{user_message}\n\nReply in the same dialect exactly."
+            "content": build_control_prompt(
+                user_message=user_message,
+                detected_dialect=detected_dialect,
+                user_state=user_state,
+            ),
         },
     ]
 
@@ -79,25 +153,23 @@ STRICT RULES:
     if not isinstance(raw_reply, str):
         return None
 
-    try:
-        parsed = json.loads(raw_reply)
-        map_type = parsed.get("map_type", DEFAULT_MAP_TYPE)
-        reply = parsed.get("reply", "").strip()
-
-        if map_type not in MAP_IMAGE_MAP:
-            map_type = DEFAULT_MAP_TYPE
-
-        if not reply:
-            reply = DEFAULT_FALLBACK_REPLY
-
-        return {
-            "map_type": map_type,
-            "reply": reply,
-            "detected_dialect": detected_dialect,
-        }
-
-    except Exception:
+    parsed = extract_json_object(raw_reply)
+    if not parsed:
         return None
+
+    map_type = parsed.get("map_type", DEFAULT_MAP_TYPE)
+    reply = str(parsed.get("reply", "")).strip()
+
+    if map_type not in MAP_IMAGE_MAP:
+        map_type = DEFAULT_MAP_TYPE
+
+    if not reply:
+        reply = DEFAULT_FALLBACK_REPLY
+
+    return {
+        "map_type": map_type,
+        "reply": reply,
+    }
 
 
 def process_chat(user_message: str):
