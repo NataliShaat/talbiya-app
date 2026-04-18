@@ -49,23 +49,28 @@ def detect_user_state(user_message: str) -> str:
     text = user_message.strip()
 
     distress_patterns = [
-        r"\bضعت\b",
-        r"\bضايع\b",
-        r"\bضايعة\b",
-        r"\bخايف\b",
-        r"\bخايفة\b",
-        r"\bمتوتر\b",
-        r"\bمتوترة\b",
-        r"\bمرعوب\b",
-        r"\bمرعوبة\b",
-        r"\bما أعرف وين\b",
-        r"\bمو عارف وين\b",
-        r"\bوين أروح\b",
-        r"\bوين اروح\b",
-        r"\bما أعرف أروح وين\b",
-        r"\bمحتاج مساعدة بسرعة\b",
-        r"\bحالة طارئة\b",
-    ]
+    r"\bضعت\b",
+    r"\bضايع\b",
+    r"\bضايعة\b",
+    r"\bخايف\b",
+    r"\bخايفة\b",
+    r"\bمتوتر\b",
+    r"\bمتوترة\b",
+    r"\bمرعوب\b",
+    r"\bمرعوبة\b",
+    r"\bما أعرف وين\b",
+    r"\bمو عارف وين\b",
+    r"\bوين أروح\b",
+    r"\bوين اروح\b",
+    r"\bما أعرف أروح وين\b",
+    r"\bمحتاج مساعدة بسرعة\b",
+    r"\bحالة طارئة\b",
+    r"\bحالة خطر\b",
+    r"\bخطر\b",
+    r"\bالحق\b",
+    r"\bساعدني\b",
+    r"\bنجدة\b",
+]
 
     for pattern in distress_patterns:
         if re.search(pattern, text):
